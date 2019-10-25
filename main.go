@@ -5,12 +5,13 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"gonum.org/v1/gonum/stat/combin"
 	"math"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"gonum.org/v1/gonum/stat/combin"
 )
 
 func main() {
@@ -79,17 +80,21 @@ func main() {
 		fmt.Println(row)
 	}
 
-	base := rowSize
-	basePow := int(math.Pow(float64(base), float64(2)))
+	base := int(math.Sqrt(float64(rowSize)))
+	basePow2 := int(math.Pow(float64(base), float64(2)))
+	basePow4 := int(math.Pow(float64(base), float64(4)))
+
 	cnfInt := [][]int{}
 
 	rule1 := [][]int{}
-	for i := 1; i <= basePow; i++ {
-		r := []int{}
-		for j := 1; j <= base; j++ {
-			r = append(r, j+(base*(i-1)))
+	for i := 1; i <= basePow2; i++ {
+		for j := 1; j <= basePow2; j++ {
+			r := []int{}
+			for k := 1; k <= basePow2; k++ {
+				r = append(r, (basePow4*(i-1))+(basePow2*(j-1))+k)
+			}
+			rule1 = append(rule1, r)
 		}
-		rule1 = append(rule1, r)
 	}
 	for _, r := range rule1 {
 		cnfInt = append(cnfInt, r)
@@ -98,6 +103,75 @@ func main() {
 		c := combinations(r)
 		for _, s := range c {
 			cnfInt = append(cnfInt, s)
+		}
+	}
+
+	rule2 := [][]int{}
+	for i := 1; i <= basePow2; i++ {
+		for j := 1; j <= basePow2; j++ {
+			r := []int{}
+			for k := 1; k <= basePow2; k++ {
+				r = append(r, i+(basePow4*(j-1))+(basePow2*(k-1)))
+			}
+			rule2 = append(rule2, r)
+		}
+	}
+	for _, r := range rule2 {
+		cnfInt = append(cnfInt, r)
+	}
+	for _, r := range rule2 {
+		c := combinations(r)
+		for _, s := range c {
+			cnfInt = append(cnfInt, s)
+		}
+	}
+
+	rule3 := [][]int{}
+	for i := 1; i <= basePow2; i++ {
+		for j := 1; j <= basePow2; j++ {
+			r := []int{}
+			for k := 1; k <= basePow2; k++ {
+				r = append(r, i+(basePow2*(j-1))+(basePow4*(k-1)))
+			}
+			rule3 = append(rule3, r)
+		}
+	}
+	for _, r := range rule3 {
+		cnfInt = append(cnfInt, r)
+	}
+	for _, r := range rule3 {
+		c := combinations(r)
+		for _, s := range c {
+			cnfInt = append(cnfInt, s)
+		}
+	}
+
+	rule4 := [][]int{}
+	for i := 1; i <= basePow2; i++ {
+		for j := 1; j <= basePow2; j++ {
+			r := []int{}
+			for k := 1; k <= basePow2; k++ {
+				r = append(r, i+((j-1)%base)*base*basePow2+int((j-1)/base)*base*basePow4+((k-1)%base)*basePow2+int((k-1)/base)*(basePow2*basePow2))
+			}
+			rule4 = append(rule4, r)
+		}
+	}
+	for _, r := range rule4 {
+		cnfInt = append(cnfInt, r)
+	}
+	for _, r := range rule4 {
+		c := combinations(r)
+		for _, s := range c {
+			cnfInt = append(cnfInt, s)
+		}
+	}
+
+	for i := 1; i <= basePow2; i++ {
+		for j := 1; j <= basePow2; j++ {
+			if input[i-1][j-1] != 0 {
+				s := []int{(i-1)*basePow4 + (j-1)*basePow2 + input[i-1][j-1]}
+				cnfInt = append(cnfInt, s)
+			}
 		}
 	}
 
