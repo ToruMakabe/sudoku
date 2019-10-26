@@ -8,9 +8,12 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/mitchellh/go-sat"
+	"github.com/mitchellh/go-sat/cnf"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
@@ -179,6 +182,24 @@ func main() {
 	fmt.Println(cnfInt)
 	fmt.Printf("Generated CNF clause is %v\n", len(cnfInt))
 
+	formula := cnf.NewFormulaFromInts(cnfInt)
+	s := sat.New()
+	s.AddFormula(formula)
+	r := s.Solve()
+	fmt.Printf("SAT: %v\n", r)
+	fmt.Println("Assignments are")
+	as := s.Assignments()
+	keys := []int{}
+	for k, a := range as {
+		if a {
+			keys = append(keys, k)
+		}
+	}
+	sort.Ints(keys)
+
+	for n, k := range keys {
+		fmt.Println(n, k)
+	}
 }
 
 func combinations(s []int) [][]int {
