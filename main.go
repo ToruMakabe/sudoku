@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mitchellh/go-sat"
 	"github.com/mitchellh/go-sat/cnf"
@@ -18,8 +19,9 @@ import (
 )
 
 func main() {
-	re := regexp.MustCompile("[0-9]")
-	const inputFormatMsg = "Please input n * n numbers [0-n] delimitted by conma. 0 is empty as Sudoku cell."
+	st := time.Now()
+	re := regexp.MustCompile("[0-9]+")
+	const inputFormatMsg = "Please input n * n numbers [0-n] delimitted by conma. n must be a square number such as 4. 0 is empty as Sudoku cell."
 
 	datafilePtr := flag.String("data", "", "filepath of input data")
 	flag.Parse()
@@ -77,13 +79,21 @@ func main() {
 		fmt.Println(inputFormatMsg)
 		os.Exit(1)
 	}
-
-	fmt.Println("Input problem is")
-	for _, row := range input {
-		fmt.Println(row)
+	base := int(math.Sqrt(float64(rowLength)))
+	if base*base != rowLength {
+		fmt.Println(inputFormatMsg)
+		os.Exit(1)
 	}
 
-	base := int(math.Sqrt(float64(rowLength)))
+	fmt.Println("[Input problem]")
+	for _, row := range input {
+		for _, n := range row {
+			fmt.Printf("%2d ", n)
+		}
+		fmt.Println()
+	}
+	fmt.Println()
+
 	basePow2 := int(math.Pow(float64(base), float64(2)))
 	basePow4 := int(math.Pow(float64(base), float64(4)))
 
@@ -150,16 +160,17 @@ func main() {
 		}
 	}
 
-	fmt.Println("Generated CNF is")
-	fmt.Println(cnfSlices)
-	fmt.Printf("Number of generated CNF clauses is %v\n", len(cnfSlices))
+	fmt.Printf("Number of generated CNF clauses: %v\n", len(cnfSlices))
 
 	formula := cnf.NewFormulaFromInts(cnfSlices)
 	s := sat.New()
 	s.AddFormula(formula)
 	r := s.Solve()
 	fmt.Printf("SAT: %v\n", r)
-	fmt.Println("Assignments are")
+	fmt.Println()
+	if !r {
+		os.Exit(0)
+	}
 	as := s.Assignments()
 	keys := []int{}
 	for k, a := range as {
@@ -169,9 +180,23 @@ func main() {
 	}
 	sort.Ints(keys)
 
-	for n, k := range keys {
-		fmt.Println(n, k)
+	fmt.Println("[Solution]")
+	sol := []int{}
+	for k, a := range keys {
+		sol = append(sol, a-(k*basePow2))
+		if (k+1)%basePow2 == 0 {
+			for _, n := range sol {
+				fmt.Printf("%2d ", n)
+			}
+			fmt.Println()
+			sol = []int{}
+		}
 	}
+	fmt.Println()
+
+	et := time.Now()
+	fmt.Println("Time: ", et.Sub(st))
+
 }
 
 func combinations(s []int) [][]int {
