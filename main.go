@@ -59,21 +59,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	rowSize := 0
-	columnSize := len(input)
+	rowLength := 0
+	columnLength := len(input)
 	for _, row := range input {
 		if len(row) == 0 {
 			fmt.Println(inputFormatMsg)
 			os.Exit(1)
 		}
-		if rowSize == 0 || rowSize == len(row) {
-			rowSize = len(row)
+		if rowLength == 0 || rowLength == len(row) {
+			rowLength = len(row)
 		} else {
 			fmt.Println(inputFormatMsg)
 			os.Exit(1)
 		}
 	}
-	if rowSize != columnSize {
+	if rowLength != columnLength {
 		fmt.Println(inputFormatMsg)
 		os.Exit(1)
 	}
@@ -83,89 +83,61 @@ func main() {
 		fmt.Println(row)
 	}
 
-	base := int(math.Sqrt(float64(rowSize)))
+	base := int(math.Sqrt(float64(rowLength)))
 	basePow2 := int(math.Pow(float64(base), float64(2)))
 	basePow4 := int(math.Pow(float64(base), float64(4)))
 
-	cnfInt := [][]int{}
+	encSlices := [][]int{}
 
-	rule1 := [][]int{}
 	for i := 1; i <= basePow2; i++ {
 		for j := 1; j <= basePow2; j++ {
 			r := []int{}
 			for k := 1; k <= basePow2; k++ {
 				r = append(r, (basePow4*(i-1))+(basePow2*(j-1))+k)
 			}
-			rule1 = append(rule1, r)
-		}
-	}
-	for _, r := range rule1 {
-		cnfInt = append(cnfInt, r)
-	}
-	for _, r := range rule1 {
-		c := combinations(r)
-		for _, s := range c {
-			cnfInt = append(cnfInt, s)
+			encSlices = append(encSlices, r)
 		}
 	}
 
-	rule2 := [][]int{}
 	for i := 1; i <= basePow2; i++ {
 		for j := 1; j <= basePow2; j++ {
 			r := []int{}
 			for k := 1; k <= basePow2; k++ {
 				r = append(r, i+(basePow4*(j-1))+(basePow2*(k-1)))
 			}
-			rule2 = append(rule2, r)
-		}
-	}
-	for _, r := range rule2 {
-		cnfInt = append(cnfInt, r)
-	}
-	for _, r := range rule2 {
-		c := combinations(r)
-		for _, s := range c {
-			cnfInt = append(cnfInt, s)
+			encSlices = append(encSlices, r)
 		}
 	}
 
-	rule3 := [][]int{}
 	for i := 1; i <= basePow2; i++ {
 		for j := 1; j <= basePow2; j++ {
 			r := []int{}
 			for k := 1; k <= basePow2; k++ {
 				r = append(r, i+(basePow2*(j-1))+(basePow4*(k-1)))
 			}
-			rule3 = append(rule3, r)
-		}
-	}
-	for _, r := range rule3 {
-		cnfInt = append(cnfInt, r)
-	}
-	for _, r := range rule3 {
-		c := combinations(r)
-		for _, s := range c {
-			cnfInt = append(cnfInt, s)
+			encSlices = append(encSlices, r)
 		}
 	}
 
-	rule4 := [][]int{}
 	for i := 1; i <= basePow2; i++ {
 		for j := 1; j <= basePow2; j++ {
 			r := []int{}
 			for k := 1; k <= basePow2; k++ {
 				r = append(r, i+((j-1)%base)*base*basePow2+int((j-1)/base)*base*basePow4+((k-1)%base)*basePow2+int((k-1)/base)*(basePow2*basePow2))
 			}
-			rule4 = append(rule4, r)
+			encSlices = append(encSlices, r)
 		}
 	}
-	for _, r := range rule4 {
-		cnfInt = append(cnfInt, r)
+
+	cnfSlices := [][]int{}
+
+	for _, r := range encSlices {
+		cnfSlices = append(cnfSlices, r)
 	}
-	for _, r := range rule4 {
+	for _, r := range encSlices {
 		c := combinations(r)
 		for _, s := range c {
-			cnfInt = append(cnfInt, s)
+			cnfSlices = append(cnfSlices, s)
 		}
 	}
 
@@ -173,16 +145,16 @@ func main() {
 		for j := 1; j <= basePow2; j++ {
 			if input[i-1][j-1] != 0 {
 				s := []int{(i-1)*basePow4 + (j-1)*basePow2 + input[i-1][j-1]}
-				cnfInt = append(cnfInt, s)
+				cnfSlices = append(cnfSlices, s)
 			}
 		}
 	}
 
 	fmt.Println("Generated CNF is")
-	fmt.Println(cnfInt)
-	fmt.Printf("Generated CNF clause is %v\n", len(cnfInt))
+	fmt.Println(cnfSlices)
+	fmt.Printf("Number of generated CNF clauses is %v\n", len(cnfSlices))
 
-	formula := cnf.NewFormulaFromInts(cnfInt)
+	formula := cnf.NewFormulaFromInts(cnfSlices)
 	s := sat.New()
 	s.AddFormula(formula)
 	r := s.Solve()
