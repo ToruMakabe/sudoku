@@ -62,7 +62,7 @@ func sudoku() int {
 
 	/*
 		問題を3次元 x[i][j][k] で捉え符号化する.
-		iは行,jは列,kはセルのインデックスとする.
+		iは行,jは列,kはセルのインデックスとする.各ループ処理のインデックスとは異なる.
 		例えば行番号1,列番号1のセルに1が入る場合の符号は1に,4では4になる.
 		x[1][1][1] = 1
 		x[1][1][4] = 4
@@ -72,8 +72,12 @@ func sudoku() int {
 		x[1][2][4] = 8
 	*/
 
-	// 各セルのとりうる値を論理式で表現し,スライスにまとめる.
-	// 例えば x[1][1][k] で 1<=k<=4 の場合の論理式は (1 v 2 v 3 v 4) なので,スライスは [1 2 3 4] となる.
+	/*
+		各セルのとりうる値を論理式で表現し,スライスにまとめる.
+		例えば4x4の場合は,各セルには1から4の数字が入る.
+		セル(1,1)の論理式は (1 v 2 v 3 v 4) で,スライスは [1 2 3 4] となる.
+		インデックスiは行,jは列,kはセルに入る数字である.
+	*/
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
 			r := []int{}
@@ -84,8 +88,12 @@ func sudoku() int {
 		}
 	}
 
-	// 各行のとりうる値を論理式で表現し,スライスにまとめる.
-	// 例えば x[1][k][1] で 1<=k<=4 の場合の論理式は (1 v 5 v 9 v 13) なので,スライスは [1 5 9 13] となる.
+	/*
+		各行のとりうる値を論理式で表現し,スライスにまとめる.
+		例えば各行のいずれかのセルに1が入る.
+		4x4とすると,その場合の行1の論理式は (1 v 5 v 9 v 13) で,スライスは [1 5 9 13] となる.
+		インデックスiはセルに入る数字,jは行,kは列である.
+	*/
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
 			r := []int{}
@@ -96,8 +104,12 @@ func sudoku() int {
 		}
 	}
 
-	// 各列のとりうる値を論理式で表現し,スライスにまとめる.
-	// 例えば x[k][1][1] で 1<=k<=4 の場合の論理式は (1 v 17 v 33 v 49) なので,スライスは [1 17 33 49] となる.
+	/*
+		各列のとりうる値を論理式で表現し,スライスにまとめる.
+		例えば各列のいずれかのセルに1が入る.
+		4x4とすると,その場合の列1の論理式は (1 v 17 v 33 v 49) なので,スライスは [1 17 33 49] となる.
+		インデックスiはセルに入る数字,jは列,kは行である.
+	*/
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
 			r := []int{}
@@ -108,8 +120,12 @@ func sudoku() int {
 		}
 	}
 
-	// 各ブロックのとりうる値を論理式で表現し,スライスにまとめる.ブロックの行と列の長さはsqである.
-	// [要追加]
+	/*
+		/ブロックのとりうる値を論理式で表現し,スライスにまとめる.ブロックの行と列の長さはsqである.
+		例えば各ブロックのいずれかのセルに1が入る.
+		4x4とすると,その場合のブロック1の論理式は (1 v 5 v 17 v 21) なので,スライスは [1 17 33 49] となる.
+		インデックスiはセルに入る数字,jはブロック,kはブロック内の位置である.
+	*/
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
 			r := []int{}
@@ -125,15 +141,15 @@ func sudoku() int {
 		}
 	}
 
-	// CNFを代入するスライスを宣言.
+	// CNF形式の問題を代入するスライスを宣言する.
 	var cnfSlices [][]int
 
-	// at least one.
+	// 先に符号化した「少なくとも1つが真」となるスライスを全て代入する.
 	for _, r := range encSlices {
 		cnfSlices = append(cnfSlices, r)
 	}
 
-	// at most one.
+	// 「少なくとも1つが真」となるスライスを元に,「たかだか1つが真」を表現するスライスを作り代入する.
 	for _, r := range encSlices {
 		c := combinations(r)
 		for _, s := range c {
@@ -141,7 +157,7 @@ func sudoku() int {
 		}
 	}
 
-	// 問題節を追加.
+	// 入力された問題を節として追加する.
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
 			if input[i-1][j-1] != 0 {
@@ -151,10 +167,10 @@ func sudoku() int {
 		}
 	}
 
-	// CNFの大きさ(節数)を表示
+	// CNFの大きさ(節数)を表示する.
 	fmt.Printf("Number of generated CNF clauses: %v\n", len(cnfSlices))
 
-	// go-satで充足可否と付値を取得
+	// go-satで充足可否と付値を取得する.
 	formula := cnf.NewFormulaFromInts(cnfSlices)
 	s := sat.New()
 	s.AddFormula(formula)
@@ -166,7 +182,7 @@ func sudoku() int {
 	}
 	as := s.Assignments()
 
-	// 付値がソートされていないためソートする.
+	// 真の要素を選び,ソートする.
 	keys := []int{}
 	for k, a := range as {
 		if a {
@@ -175,7 +191,7 @@ func sudoku() int {
 	}
 	sort.Ints(keys)
 
-	// 解を復号して表示.
+	// 要素を復号して表示する.
 	fmt.Println("[Solution]")
 	sol := []int{}
 	for k, a := range keys {
@@ -190,14 +206,14 @@ func sudoku() int {
 	}
 	fmt.Println()
 
-	// 処理時間を表示.
+	// 処理時間を表示する.
 	et := time.Now()
 	fmt.Println("Time: ", et.Sub(st))
 
 	return 0
 }
 
-// parseProblemは数独の問題ファイルを受け取り, 形式を検証する.
+// parseProblemは数独の問題ファイルを受け取り,形式を検証する.
 func parseProblem(fn /* filename */ string) ([][]int, error) {
 	re := regexp.MustCompile("[0-9]+")
 	var input [][]int
@@ -255,7 +271,7 @@ func parseProblem(fn /* filename */ string) ([][]int, error) {
 	return input, nil
 }
 
-// combinationsはスライス要素の組み合わせ(nC2)を作り, 各要素を負数に変換する.
+// combinationsはスライス要素の組み合わせ(nC2)を作り,否定の選言をCNFで表現するため各要素を負数に変換する.
 func combinations(s /* slice */ []int) [][]int {
 	var r [][]int
 	cs := combin.Combinations(len(s), 2)
