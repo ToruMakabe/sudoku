@@ -26,7 +26,7 @@ func sudoku() int {
 	flag.Usage = flagUsage
 	flag.Parse()
 
-	// 引数の有無を検証.
+	// 引数の有無を検証する.
 	args := flag.Args()
 	if len(args) != 1 {
 		flagUsage()
@@ -62,7 +62,7 @@ func sudoku() int {
 
 	/*
 		問題を3次元 x[i][j][k] で捉え符号化する.
-		iは行,jは列,kはセルのインデックスとする.各ループ処理のインデックスとは異なる.
+		iは行,jは列,kはセルのインデックスとする.
 		例えば行番号1,列番号1のセルに1が入る場合の符号は1に,4では4になる.
 		x[1][1][1] = 1
 		x[1][1][4] = 4
@@ -70,6 +70,7 @@ func sudoku() int {
 		例えば行番号1,列番号2のセルに1が入り,sqPow2が4の場合の符号は5に,5では8になる.
 		x[1][2][1] = 5
 		x[1][2][4] = 8
+		なお、各ループ処理のインデックスとは異なる.
 	*/
 
 	/*
@@ -131,10 +132,10 @@ func sudoku() int {
 			r := []int{}
 			for k := 1; k <= sqPow2; k++ {
 				r = append(r, i+
-					((j-1)%sq)*sq*sqPow2+ /* ブロック数に応じて列方向の加算 */
-					int((j-1)/sq)*sq*sqPow4+ /* ブロック数に応じて行方向の加算 */
-					((k-1)%sq)*sqPow2+ /* ブロック内で列方向の加算 */
-					int((k-1)/sq)*(sqPow2*sqPow2), /* ブロック内で行方向の加算 */
+					((j-1)%sq)*sq*sqPow2+ /* ブロックに応じて列方向の加算 */
+					int((j-1)/sq)*sq*sqPow4+ /* ブロックに応じて行方向の加算 */
+					((k-1)%sq)*sqPow2+ /* ブロック内の位置に応じて列方向の加算 */
+					int((k-1)/sq)*(sqPow2*sqPow2), /* ブロック内の位置に応じて行方向の加算 */
 				)
 			}
 			encSlices = append(encSlices, r)
@@ -170,7 +171,8 @@ func sudoku() int {
 	// CNFの大きさ(節数)を表示する.
 	fmt.Printf("Number of generated CNF clauses: %v\n", len(cnfSlices))
 
-	// go-satで充足可否と付値を取得する.
+	// 充足可否と付値を取得する.
+	// SATソルバーにはMITライセンスで公開されている go-sat を利用する(https://github.com/mitchellh/go-sat)
 	formula := cnf.NewFormulaFromInts(cnfSlices)
 	s := sat.New()
 	s.AddFormula(formula)
@@ -271,7 +273,7 @@ func parseProblem(fn /* filename */ string) ([][]int, error) {
 	return input, nil
 }
 
-// combinationsはスライス要素の組み合わせ(nC2)を作り,否定の選言をCNFで表現するため各要素を負数に変換する.
+// combinationsはスライス要素の組み合わせ(nC2)を作り,かつ否定の選言を表現するため各要素を負数に変換する.
 func combinations(s /* slice */ []int) [][]int {
 	var r [][]int
 	cs := combin.Combinations(len(s), 2)
