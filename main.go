@@ -20,6 +20,7 @@ import (
 
 const inputFormatMsg = "Please input n^2 * n^2 numbers 0 or 1-9 delimitted by conma. 0 is empty as Sudoku cell."
 
+// sudokuは実質的な主処理である.
 func sudoku() int {
 	st := time.Now()
 
@@ -284,15 +285,18 @@ func combinations(s /* slice */ []int) [][]int {
 	return r
 }
 
+// flagUsageはコマンドラインオプション(フラグ)の使い方を出力する.
 func flagUsage() {
 	fmt.Fprintf(os.Stderr, "Usage: %[1]s <problem-filename>\n", os.Args[0])
 	flag.PrintDefaults()
 }
 
+// printErrorはエラーメッセージ出力を統一する.
 func printError(err error) {
 	fmt.Fprintf(os.Stderr, err.Error()+"\n")
 }
 
+// mainはエントリーポイントと終了コードを返却する役割のみとする.
 func main() {
 	os.Exit(sudoku())
 }
