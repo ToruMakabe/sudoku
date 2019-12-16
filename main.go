@@ -237,7 +237,7 @@ func parseProblem(fn /* filename */ string) ([][]int, error) {
 			return nil, err
 		}
 
-		s := []int{}
+		var s []int
 		for _, num := range nums {
 			if !re.MatchString(num) {
 				return nil, fmt.Errorf(inputFormatMsg)
