@@ -22,8 +22,6 @@ const inputFormatMsg = "Please input n^2 * n^2 numbers 0 or 1-9 delimitted by co
 
 // sudokuは実質的な主処理である.
 func sudoku() int {
-	st := time.Now()
-
 	flag.Usage = flagUsage
 	flag.Parse()
 
@@ -50,6 +48,9 @@ func sudoku() int {
 		fmt.Println()
 	}
 	fmt.Println()
+
+	// 以降を処理時間の計測対象とする.
+	st := time.Now()
 
 	// 問題のサイズは複数回使うため, 変数にする.
 	// sqPow2は行と列のそれぞれの長さかつセルに入る数字の最大値, sqはその平方数, sqPow4はsqの4乗である.
