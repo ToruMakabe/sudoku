@@ -252,7 +252,7 @@ func parseProblem(fn /* filename */ string) ([][]int, error) {
 	}
 
 	rowLength := 0
-	columnLength := len(input)
+	rowCounter := len(input)
 	for _, row := range input {
 		if len(row) == 0 {
 			return nil, fmt.Errorf(inputFormatMsg)
@@ -263,7 +263,7 @@ func parseProblem(fn /* filename */ string) ([][]int, error) {
 			return nil, fmt.Errorf(inputFormatMsg)
 		}
 	}
-	if rowLength != columnLength {
+	if rowLength != rowCounter {
 		return nil, fmt.Errorf(inputFormatMsg)
 	}
 	sq := int(math.Sqrt(float64(rowLength)))
