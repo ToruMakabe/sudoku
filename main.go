@@ -83,7 +83,7 @@ func sudoku() int {
 	*/
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
-			r := []int{}
+			var r []int
 			for k := 1; k <= sqPow2; k++ {
 				r = append(r, (sqPow4*(i-1))+(sqPow2*(j-1))+k)
 			}
@@ -99,7 +99,7 @@ func sudoku() int {
 	*/
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
-			r := []int{}
+			var r []int
 			for k := 1; k <= sqPow2; k++ {
 				r = append(r, i+(sqPow4*(j-1))+(sqPow2*(k-1)))
 			}
@@ -115,7 +115,7 @@ func sudoku() int {
 	*/
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
-			r := []int{}
+			var r []int
 			for k := 1; k <= sqPow2; k++ {
 				r = append(r, i+(sqPow2*(j-1))+(sqPow4*(k-1)))
 			}
@@ -131,7 +131,7 @@ func sudoku() int {
 	*/
 	for i := 1; i <= sqPow2; i++ {
 		for j := 1; j <= sqPow2; j++ {
-			r := []int{}
+			var r []int
 			for k := 1; k <= sqPow2; k++ {
 				r = append(r, i+
 					((j-1)%sq)*sq*sqPow2+ /* ブロックに応じて列方向の加算 */
