@@ -252,23 +252,23 @@ func parseProblem(fn /* filename */ string) ([][]int, error) {
 		return nil, err
 	}
 
-	rowLength := 0
-	rowCounter := len(input)
+	columnCount := 0
+	rowCount := len(input)
 	for _, row := range input {
 		if len(row) == 0 {
 			return nil, fmt.Errorf(inputFormatMsg)
 		}
-		if rowLength == 0 || rowLength == len(row) {
-			rowLength = len(row)
+		if columnCount == 0 || columnCount == len(row) {
+			columnCount = len(row)
 		} else {
 			return nil, fmt.Errorf(inputFormatMsg)
 		}
 	}
-	if rowLength != rowCounter {
+	if columnCount != rowCount {
 		return nil, fmt.Errorf(inputFormatMsg)
 	}
-	sq := int(math.Sqrt(float64(rowLength)))
-	if sq*sq != rowLength {
+	sq := int(math.Sqrt(float64(columnCount)))
+	if sq*sq != columnCount {
 		return nil, fmt.Errorf(inputFormatMsg)
 	}
 
