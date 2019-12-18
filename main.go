@@ -187,7 +187,7 @@ func sudoku() int {
 	as := s.Assignments()
 
 	// 真の要素を選び, ソートする.
-	keys := []int{}
+	var keys []int
 	for k, a := range as {
 		if a {
 			keys = append(keys, k)
@@ -197,7 +197,7 @@ func sudoku() int {
 
 	// 要素を復号して表示する.
 	fmt.Println("[Solution]")
-	sol := []int{}
+	var sol []int
 	for k, a := range keys {
 		sol = append(sol, a-(k*sqPow2))
 		if (k+1)%sqPow2 == 0 {
@@ -205,7 +205,7 @@ func sudoku() int {
 				fmt.Printf("%2d ", n)
 			}
 			fmt.Println()
-			sol = []int{}
+			sol = nil
 		}
 	}
 	fmt.Println()
